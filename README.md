@@ -1,4 +1,7 @@
 # Regret Optimal Federated Transfer Learning
+
+[![DOI](https://zenodo.org/badge/673854185.svg)](https://zenodo.org/badge/latestdoi/673854185)
+
 Official implementation of the paper 
 [Regret-Optimal Federated Transfer Learning for Kernel Regression with Applications in American Option Pricing](https://arxiv.org/abs/2309.04557).
 
