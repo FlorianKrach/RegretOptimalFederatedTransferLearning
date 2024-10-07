@@ -169,6 +169,15 @@ params_dict6 = dict(
              info_sharing_level=50, T=1, ),
         dict(method="regret_optimal_algo", ridge_coeff=rc,
              info_sharing_level=100, T=1, ),
+        dict(method="regret_optimal_algo", ridge_coeff=rc, regret_coeff=3.,
+             beta=0., info_sharing_level=100, T=1, init_algo="wasserstein_init",
+             gamma=1e-5, init_regularized=False),
+        dict(method="regret_optimal_algo", ridge_coeff=rc, regret_coeff=3.,
+             beta=0., info_sharing_level=100, T=1, init_algo="wasserstein_init",
+             gamma=1e-2, init_regularized=False),
+        dict(method="regret_optimal_algo", ridge_coeff=rc, regret_coeff=3.,
+             beta=0., info_sharing_level=100, T=1, init_algo="wasserstein_init",
+             gamma=1e-1, init_regularized=False),
     ],
     nb_stocks=[2],
     nb_dates=[9],
@@ -196,9 +205,12 @@ GTO_6 = dict(
         "dict-opt_method_dict-which_dataset",
         "dict-opt_method_dict-option",
         "dict-opt_method_dict-info_sharing_level",
+        "dict-opt_method_dict-gamma",
+        "dict-opt_method_dict-init_algo",
     ],
     sortby=["dict-opt_method_dict-method",
             "dict-opt_method_dict-info_sharing_level",
+            "dict-opt_method_dict-gamma",
             "dict-opt_method_dict-option", ]
 )
 
@@ -228,7 +240,8 @@ for i in range(len(datasets_7_1)):
 params_dict7_1 = dict(
     dataset_dicts=[datasets_7_1],
     algo=["RLSM"],
-    opt_method_dict=loc_optims+[
+    opt_method_dict=
+        loc_optims+[
         dict(method="joint_optimizer", ridge_coeff=rc),
         dict(method="mean_local_optimizers", ridge_coeff=rc),
         dict(method="regret_optimal_algo", ridge_coeff=rc,
@@ -247,8 +260,15 @@ params_dict7_1 = dict(
              info_sharing_level=100, T=0, ),
         dict(method="regret_optimal_algo", ridge_coeff=rc, regret_coeff=0.,
              info_sharing_level=100, T=10, ),
-        dict(method="regret_optimal_algo", ridge_coeff=rc, regret_coeff=0.,
-             info_sharing_level=100, T=1, ),
+        dict(method="regret_optimal_algo", ridge_coeff=rc, regret_coeff=3.,
+             beta=0., info_sharing_level=100, T=1, init_algo="wasserstein_init",
+             gamma=1e-5, init_regularized=False),
+        dict(method="regret_optimal_algo", ridge_coeff=rc, regret_coeff=3.,
+             beta=0., info_sharing_level=100, T=1, init_algo="wasserstein_init",
+             gamma=1e-2, init_regularized=False),
+        dict(method="regret_optimal_algo", ridge_coeff=rc, regret_coeff=3.,
+             beta=0., info_sharing_level=100, T=1, init_algo="wasserstein_init",
+             gamma=1e-1, init_regularized=False),
     ],
     nb_stocks=[2],
     nb_dates=[9],
@@ -277,9 +297,12 @@ GTO_7_1 = dict(
         "dict-opt_method_dict-which_dataset",
         "dict-opt_method_dict-option",
         "dict-opt_method_dict-info_sharing_level",
+        "dict-opt_method_dict-gamma",
+        "dict-opt_method_dict-init_algo",
     ],
     sortby=["dict-opt_method_dict-method",
             "dict-opt_method_dict-info_sharing_level",
+            "dict-opt_method_dict-gamma",
             "dict-opt_method_dict-option", ]
 )
 
@@ -357,9 +380,12 @@ GTO_7_2 = dict(
         "dict-opt_method_dict-which_dataset",
         "dict-opt_method_dict-option",
         "dict-opt_method_dict-info_sharing_level",
+        "dict-opt_method_dict-gamma",
+        "dict-opt_method_dict-init_algo",
     ],
     sortby=["dict-opt_method_dict-method",
             "dict-opt_method_dict-info_sharing_level",
+            "dict-opt_method_dict-gamma",
             "dict-opt_method_dict-option", ]
 )
 
@@ -408,7 +434,7 @@ conv_plot_2 = dict(
     runs=np.arange(0, 10),
     scaling=[1,1,1],
     linestyles=["-",  "-.", "--", ],
-    labels=["RO", "ERO", "GD",],
+    labels=["RO", "ARO", "GD",],
     use_subplots=False,
     save_extras={'bbox_inches': 'tight', 'pad_inches': 0.01},
 )
@@ -421,7 +447,7 @@ conv_plot_2_1 = dict(
     iter_to=1000,
     scaling=[1,1,1],
     linestyles=["-", "-.", "--", ],
-    labels=["RO", "ERO", "GD", ],
+    labels=["RO", "ARO", "GD", ],
     use_subplots=False,
     save_extras={'bbox_inches': 'tight', 'pad_inches': 0.01},
 )
@@ -435,7 +461,7 @@ conv_plot_2_2 = dict(
     iter_to=1000,
     scaling=[1,1],
     linestyles=["-",  "-.",],
-    labels=["RO", "ERO"],
+    labels=["RO", "ARO"],
     use_subplots=False,
     save_extras={'bbox_inches': 'tight', 'pad_inches': 0.01},
 )

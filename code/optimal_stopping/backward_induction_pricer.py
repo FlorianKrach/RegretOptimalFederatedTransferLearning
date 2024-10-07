@@ -241,7 +241,8 @@ class AmericanOptionPricer:
       opt_params, param_seq = opt_method(
         # we use the identity as feature map, since the features are already
         #   computed and stored in X of the dataset
-        datasets=training_datasets, featuremap=lambda x: x, **optimizer_dict)
+        datasets=training_datasets, featuremap=lambda x: x, **optimizer_dict,
+        verbose=self.verbose)
       if plot_fname is not None and param_seq is not None:
         param_seq = np.array(param_seq)
         param_seq = param_seq.reshape((param_seq.shape[0], -1))

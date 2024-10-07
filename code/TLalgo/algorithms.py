@@ -10,7 +10,7 @@ import copy
 import scipy.optimize as opt
 import torch.nn
 import tqdm
-
+import ot
 
 def get_ridge_reg(featuremap, X, Y, ridge_coeff):
     """
@@ -79,7 +79,7 @@ def get_MSE(featuremap, X, Y, params):
 
 
 def initialization_algo(
-        featuremap, datasets, ridge_coeff=0., info_sharing_level=0.5):
+        featuremap, datasets, ridge_coeff=0., info_sharing_level=0.5, **kwargs):
     """
     Initialization for the regret-optimal transfer learning algorithm.
     corresponds to Algorithm 2 in the paper.
@@ -122,6 +122,59 @@ def initialization_algo(
     return weights, params
 
 
+def wasserstein_initialization_algo(
+        featuremap, datasets, ridge_coeff=0., info_sharing_level=0.5,
+        regularized=False, gamma=1., verbose=0, **kwargs):
+    """
+    Initialization for the regret-optimal transfer learning algorithm using
+    Wasserstein distances.
+
+    Args:
+        featuremap:
+        datasets:
+        ridge_coeff:
+        info_sharing_level:
+
+    Returns: optimal weights and locally optimal parameters
+    """
+    nb_datasets = len(datasets)
+    eta = info_sharing_level
+    params = []
+    WDs = []
+    sizes = []
+    dim = datasets[0][0].shape[1] + datasets[0][1].shape[-1]
+    X0, Y0 = datasets[0]
+    D0 = np.concatenate([featuremap(X0), Y0.reshape(-1, 1)], axis=1)
+    mu0 = np.ones(D0.shape[0])/D0.shape[0]
+    for i in range(nb_datasets):
+        X, Y = datasets[i]
+        params.append(get_ridge_reg(featuremap, X, Y, ridge_coeff))
+        sizes.append(X.shape[0])
+        Di = np.concatenate([featuremap(X), Y.reshape(-1, 1)], axis=1)
+        M = ot.dist(D0, Di, metric="euclidean")
+        mui = np.ones(Di.shape[0])/Di.shape[0]
+        t = time.time()
+        if regularized:
+            wd = ot.sinkhorn2(mu0, mui, M, reg=regularized)
+        else:
+            wd = ot.emd2(mu0, mui, M)
+        WDs.append(wd)
+        if verbose > 0:
+            print("WD computed in {:.2f}s".format(time.time()-t))
+    WDs = np.array(WDs)
+    if verbose > 1:
+        print("WDs:", WDs)
+    if verbose > 1:
+        print("which used:", WDs <= eta)
+    sizes = np.array(sizes)
+    weights = (np.exp(-(WDs)*gamma - sizes**(-1/dim) * gamma) * (WDs <= eta))
+    weights = weights/np.sum(weights)
+    if verbose > 0:
+        print("weights:", weights)
+
+    return weights, params
+
+
 def equal_weights_initialization_algo(
         featuremap, datasets, ridge_coeff=0., **kwargs):
     _, params = initialization_algo(
@@ -135,13 +188,14 @@ def equal_weights_initialization_algo(
 INIT_ALGOS = {
     "standard_init": initialization_algo,
     "equal_weights_init": equal_weights_initialization_algo,
+    "wasserstein_init": wasserstein_initialization_algo,
 }
 
 
 def regret_optimal_algo(
         featuremap, datasets, ridge_coeff=0., info_sharing_level=0.5, T=100,
         init_algo="standard_init", regret_coeff=None, beta=1., verbose=0,
-        symmetric=False, *args, **kwargs):
+        symmetric=False, gamma=1., init_regularized=False, *args, **kwargs):
     """
     this is the regret-optimal algorithm corresponding to Algorithm 1 and
     Theorem 1 of the paper.
@@ -165,6 +219,9 @@ def regret_optimal_algo(
             None defaults to ridge_coeff
         beta: float >=0, regularization parameter for the increments in regret
         symmetric: bool, if True, the algorithm is run in the symmetric version
+        gamma: float >=0, regularization parameter for the Wasserstein weighting
+        init_regularized: False or float, if not False, the Wasserstein distance
+            is regularized with this parameter
 
     Returns:
         param_seq: list of np.arrays of shape (nb_features, 1), the sequence
@@ -175,7 +232,8 @@ def regret_optimal_algo(
     N = len(datasets)
     weights1, params = INIT_ALGOS[init_algo](
         featuremap=featuremap, datasets=datasets, ridge_coeff=ridge_coeff,
-        info_sharing_level=info_sharing_level)
+        info_sharing_level=info_sharing_level, gamma=gamma,
+        regularized=init_regularized, verbose=verbose)
     if symmetric:
         weights = np.array([1 / N] * N)
     else:

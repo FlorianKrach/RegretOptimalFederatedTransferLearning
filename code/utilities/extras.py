@@ -225,8 +225,9 @@ def get_training_overview(
             if name == "LO":
                 name += "-{}".format(1+x["dict-opt_method_dict-which_dataset"])
             elif name in ["RO", "ERO", "SRO"]:
-                name += " ($\\eta={}$)".format(
-                    x["dict-opt_method_dict-info_sharing_level"])
+                name += " ($\\eta={}, \\gamma={}$)".format(
+                    x["dict-opt_method_dict-info_sharing_level"],
+                    x["dict-opt_method_dict-gamma"])
             return name
         dfp["name"] = dfp.apply(get_name_func, axis=1)
         dfp["RP"] = dfp["RG-dataset-0"]
