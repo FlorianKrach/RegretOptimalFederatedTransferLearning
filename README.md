@@ -90,4 +90,12 @@ If you use this code for your publications, please cite our paper:
 
 ---
 
+## Acknowledgements
+
+This code uses parts of the code for [Optimal Stopping via Randomized Neural Networks](https://github.com/HeKrRuTe/OptStopRandNN)
+(MIT License - Copyright (c) 2021 HeKrRuTe), which were modified to fit the needs
+of this project.
+
+---
+
 
